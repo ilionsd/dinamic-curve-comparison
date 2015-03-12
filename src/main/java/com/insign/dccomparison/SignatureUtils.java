@@ -10,10 +10,7 @@ import com.insign.common.function.interpolation.CubicSpline;
 import com.insign.common.function.interpolation.SplineSegment;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ilion on 05.03.2015.
@@ -46,7 +43,19 @@ public class SignatureUtils {
 		List<Point2D> ysExtremum = getExtremumPoints(curve.getY());
 		List<Point2D> csExtremum = getCurvatureExtremumPoints(curve.getX(), curve.getY());
 
-		throw new NotImplementedException();
+		List<Point2D> allExtremum = new ArrayList<Point2D>();
+		allExtremum.addAll(xsExtremum);
+		allExtremum.addAll(ysExtremum);
+		allExtremum.addAll(csExtremum);
+
+		SortedMap<Double, Point2D> skeleton = new TreeMap<Double, Point2D>();
+
+		for (Point2D extremum : allExtremum) {
+			Point2D value = curve.valueIn(extremum.getX());
+			skeleton.put(extremum.getX(), value);
+		}
+
+		return new SignatureImpl(skeleton);
 	}
 
 	private static double calculateAverageCurvature(final NaturalParametricCurve curve) {
