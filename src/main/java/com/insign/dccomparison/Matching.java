@@ -1,4 +1,4 @@
-package com.insign.dcmatching;
+package com.insign.dccomparison;
 
 /**
  * Created by ilion on 20.02.2015.

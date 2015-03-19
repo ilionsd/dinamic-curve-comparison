@@ -17,7 +17,7 @@ public class SignatureImpl extends AbstractSignature {
 	}
 
 	@Override
-	public Map<Double, Point2D> getSkeleton() {
+	public SortedMap<Double, Point2D> getSkeleton() {
 		return skeleton;
 	}
 }
