@@ -8,7 +8,6 @@ import com.insign.common.function.integration.Integral;
 import com.insign.common.function.integration.Intergrate;
 import com.insign.common.function.interpolation.CubicSpline;
 import com.insign.common.function.interpolation.SplineSegment;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 
@@ -30,7 +29,7 @@ public class SignatureUtils {
 	}
 
 	public static Signature createFromCurve(final NaturalParametricCurve curve) {
-		throw new NotImplementedException();
+		return null;
 	}
 
 	/**
@@ -90,19 +89,20 @@ public class SignatureUtils {
 				coefficients[index - 1] = segment.get(index) * index;
 			double discriminant = coefficients[1] * coefficients[1] - 4.0 * coefficients[2] * coefficients[0];
 			List<Double> roots = new ArrayList<Double>();
-			if (Double.compare(Math.abs(discriminant), Double.MIN_VALUE) <= 0) {
+			if (Double.compare(Math.abs(discriminant), 1e-8) <= 0) {
 				//-- 1 root --
 				roots.add((-coefficients[1]) / (2 * coefficients[2]));
 			}
 			else if (discriminant > 0) {
 				//-- 2 roots --
 				double discriminantSqrt = Math.sqrt(discriminant);
-				roots.add((-coefficients[1] + discriminantSqrt) / (2 * coefficients[2]));
-				roots.add((-coefficients[1] - discriminantSqrt) / (2 * coefficients[2]));
+				roots.add((-coefficients[1] + discriminantSqrt) / (2.0 * coefficients[2]));
+				roots.add((-coefficients[1] - discriminantSqrt) / (2.0 * coefficients[2]));
 			}
 			for (double root : roots) {
-				if (segment.isIn(root)) {
-					Point2D extremum = new Point2D(root, segment.valueIn(root));
+				double shiftedRoot = root + segment.getLeftBound();
+				if (segment.isIn(shiftedRoot)) {
+					Point2D extremum = new Point2D(shiftedRoot, segment.valueIn(shiftedRoot));
 					extremumPoints.add(extremum);
 				}
 			}
@@ -123,17 +123,20 @@ public class SignatureUtils {
 						  ysSegment = ys.get(ysIndex);
 			double[] xsCoefficients = new double[2],
 					 ysCoefficients = new double[2];
-			for (int power = 2; power < xsSegment.power(); power++)
+			for (int power = 2; power <= xsSegment.power(); power++)
 				xsCoefficients[power - 2] = xsSegment.get(power);
-			for (int power = 2; power < ysSegment.power(); power++)
+			for (int power = 2; power <= ysSegment.power(); power++)
 				ysCoefficients[power - 2] = ysSegment.get(power);
 			double sForbidden = Double.NaN;
-			if (Double.compare(Math.abs(xsCoefficients[0] - ysCoefficients[0]), 1e-6) <= 0 && Double.compare(Math.abs(xsCoefficients[1] - ysCoefficients[1]), 1e-8) <= 0) {
-				sForbidden = xsCoefficients[0] / (3.0 * xsCoefficients[1]);
+			if (Double.compare(Math.abs(xsCoefficients[0] - ysCoefficients[0]), 1e-8) <= 0 && Double.compare(Math.abs(xsCoefficients[1] - ysCoefficients[1]), 1e-8) <= 0 && Double.compare(Math.abs(xsSegment.getLeftBound() - ysSegment.getLeftBound()), 1e-8) <= 0) {
+				sForbidden = xsCoefficients[0] / (3.0 * xsCoefficients[1]) + xsSegment.getLeftBound();
 			}
+			double a1a1 = xsCoefficients[1] * xsCoefficients[1];
+			double a2a2 = ysCoefficients[1] * ysCoefficients[1];
 			double a1b1_plus_a2b2 = xsCoefficients[0] * xsCoefficients[1] + ysCoefficients[0] * ysCoefficients[1];
-			double a1a1_plus_a2a2 = xsCoefficients[1] * xsCoefficients[1] + ysCoefficients[1] * ysCoefficients[1];
-			double s = - (24.0 * a1b1_plus_a2b2) / (72.0 * a1a1_plus_a2a2);
+			double a1a1_plus_a2a2 = a1a1 + a2a2;
+			double a1a1s01_plus_a2a2s02 = a1a1 * xsSegment.getLeftBound() + a2a2 * ysSegment.getLeftBound();
+			double s = (3.0 * a1a1s01_plus_a2a2s02 - a1b1_plus_a2b2) / (3.0 * a1a1_plus_a2a2);
 			if (Double.compare(Math.abs(s - sForbidden), 1e-8) > 0 && xsSegment.isIn(s) && ysSegment.isIn(s)) {
 				double b1b1_plus_b2b2 = xsCoefficients[0] * xsCoefficients[0] + ysCoefficients[0] * ysCoefficients[0];
 				double cs = Math.sqrt(36.0 * a1a1_plus_a2a2 * s * s + 24.0 * a1b1_plus_a2b2 * s + 4.0 * b1b1_plus_b2b2);
