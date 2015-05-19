@@ -1,4 +1,4 @@
-package com.insign.dccomparison;
+package com.insign.dinamic_curves;
 
 import com.insign.common.function.*;
 import com.insign.common.function.differentialgeometry.NaturalParametricCurve;
@@ -8,6 +8,10 @@ import com.insign.common.function.integration.Integral;
 import com.insign.common.function.integration.Intergrate;
 import com.insign.common.function.interpolation.CubicSpline;
 import com.insign.common.function.interpolation.SplineSegment;
+import com.insign.dinamic_curves.points.BoundaryPointImpl;
+import com.insign.dinamic_curves.points.Extreme;
+import com.insign.dinamic_curves.points.ExtremeImpl;
+import com.insign.dinamic_curves.points.SignaturePoint;
 
 import java.util.*;
 
@@ -18,8 +22,9 @@ public class SignatureUtils {
 	public SignatureUtils() {super();}
 
 	private final static double INTEGRATION_STEP = 0.01;
+	private final static double LOCAL_EXTREME_AREA = 60;
 	private final static double INTEGRATION_PRECISION = 0.001;
-	private final static double LIMIT_CURVATURE_COEFFICIENT = 0.15;
+	private final static double LIMIT_CURVATURE_COEFFICIENT = 1.15;
 
 	public static Signature createFromCurve(CubicSplineParametricCurve curve) {
 
@@ -42,17 +47,53 @@ public class SignatureUtils {
 		List<Point2D> ysExtremum = getExtremumPoints(curve.getY());
 		List<Point2D> csExtremum = getCurvatureExtremumPoints(curve.getX(), curve.getY());
 
-		List<Point2D> allExtremum = new ArrayList<Point2D>();
-		allExtremum.addAll(xsExtremum);
-		allExtremum.addAll(ysExtremum);
-		allExtremum.addAll(csExtremum);
+		SortedCollection<SignaturePoint> skeleton = new SortedCollection<SignaturePoint>();
 
-		SortedMap<Double, Point2D> skeleton = new TreeMap<Double, Point2D>();
+		skeleton.add(new BoundaryPointImpl(curve.getParameterMin(), curve.valueIn(curve.getParameterMin()), curve.derivative(1, curve.getParameterMin())));
+		skeleton.add(new BoundaryPointImpl(curve.getParameterMax(), curve.valueIn(curve.getParameterMax()), curve.derivative(1, curve.getParameterMax())));
 
-		for (Point2D extremum : allExtremum) {
-			Point2D value = curve.valueIn(extremum.getX());
-			skeleton.put(extremum.getX(), value);
+		for (Point2D extremumPoint : xsExtremum) {
+			Point2D value = curve.valueIn(extremumPoint.getX());
+			Point2D derivative = curve.derivative(1, extremumPoint.getX());
+			Extreme extreme = new ExtremeImpl(extremumPoint.getX(), value, derivative, Extreme.Type.HORIZONTAL);
+			skeleton.add(extreme);
 		}
+
+		for (Point2D extremumPoint : ysExtremum) {
+			Point2D value = curve.valueIn(extremumPoint.getX());
+			Point2D derivative = curve.derivative(1, extremumPoint.getX());
+			Extreme extreme = new ExtremeImpl(extremumPoint.getX(), value, derivative, Extreme.Type.VERTICAL);
+			skeleton.add(extreme);
+		}
+
+		List<Extreme> csSelected = new ArrayList<Extreme>();
+		for (int k = 1; k < skeleton.size(); k++) {
+			double csStart = skeleton.get(k - 1).getArgument() + LOCAL_EXTREME_AREA;
+			double csEnd = skeleton.get(k).getArgument() - LOCAL_EXTREME_AREA;
+			if (Double.compare(csStart, csEnd) >= 0)
+				continue;
+			int maxIndex = -1;
+			double maxValue = 0;
+			for (int csIndex = 0; csIndex < csExtremum.size(); csIndex++) {
+				Point2D csExtreme = csExtremum.get(csIndex);
+				if (DoubleUtils.isBetween(csExtreme.getX(), csStart, csEnd)) {
+					if (Double.compare(csExtreme.getY(), maxValue) > 0) {
+						maxIndex = csIndex;
+						maxValue = csExtreme.getY();
+					}
+				}
+			}
+
+			if (maxIndex != -1) {
+				Point2D extremumPoint = csExtremum.get(maxIndex);
+				Point2D value = curve.valueIn(extremumPoint.getX());
+				Point2D derivative = curve.derivative(1, extremumPoint.getX());
+				Extreme extreme = new ExtremeImpl(extremumPoint.getX(), value, derivative, Extreme.Type.CURVATURE);
+				csSelected.add(extreme);
+			}
+		}
+
+		skeleton.addAll(csSelected);
 
 		return new SignatureImpl(skeleton);
 	}
