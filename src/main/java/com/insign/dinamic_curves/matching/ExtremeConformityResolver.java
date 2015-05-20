@@ -40,13 +40,15 @@ public class ExtremeConformityResolver implements ConformityResolwer<SignaturePo
 				rightExtreme = k;
 				if (leftExtreme != -1) {
 					//-- Conform extremes --
+					SortedCollection intermediate1 = obj1.copy(leftExtreme, rightExtreme - leftExtreme);
+					SortedCollection intermediate2 = obj2.copy(conformity.get(leftExtreme), conformity.get(rightExtreme) - conformity.get(leftExtreme));
 					for (int i = leftExtreme + 1; i < rightExtreme; i++) {
 
 					}
 				}
 			}
 		}
-		return null;
+		return conformity;
 	}
 
 	int getPointIndex(int verticalExtremeIndex, SortedCollection<? extends SignaturePoint> points) {

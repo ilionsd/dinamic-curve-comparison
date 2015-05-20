@@ -6,23 +6,21 @@ import com.insign.dinamic_curves.Chord;
 /**
  * Created by ilion on 22.04.2015.
  */
-public class ChordSizeMetric implements Metric<Chord, Point2D> {
+public class ChordSizeMetric implements Metric<Chord> {
 	public static final String NAME = ChordSizeMetric.class.getName();
-	private static final Metric<Chord, Point2D> meter = new ChordSizeMetric();
+	private static final Metric<Chord> meter = new ChordSizeMetric();
 
-	public static Metric<Chord, Point2D> getMeter() {
+	public static Metric<Chord> getMeter() {
 		return meter;
 	}
 
 	public ChordSizeMetric() {}
 
 	@Override
-	public Point2D getMetric(Chord a, Chord b) {
-		Point2D metric = new Point2D(
-				sizeMetric(a.getStart().getX(), a.getEnd().getX(), b.getStart().getX(), b.getEnd().getX()),
-				sizeMetric(a.getStart().getY(), a.getEnd().getY(), b.getStart().getY(), b.getEnd().getY())
-		);
-		return metric;
+	public Double getMetric(Chord a, Chord b) {
+		double xMetric = sizeMetric(a.getStart().getX(), a.getEnd().getX(), b.getStart().getX(), b.getEnd().getX());
+		double yMetric = sizeMetric(a.getStart().getY(), a.getEnd().getY(), b.getStart().getY(), b.getEnd().getY());
+		return xMetric + yMetric;
 	}
 
 	@Override

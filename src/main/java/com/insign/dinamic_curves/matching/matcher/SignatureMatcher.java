@@ -18,8 +18,8 @@ public class SignatureMatcher extends AbstractMatcher implements Matcher<Signatu
 
 		if (nullMatch) {
 
-			PathMatcher pathMatcher = new PathMatcher().setReference(getReference().getVerticalExtremes());
-			PathMatching pathMatching = pathMatcher.match(toCompare.getVerticalExtremes());
+			PathMatcher pathMatcher = new PathMatcher().setReference(reference);
+			PathMatching pathMatching = pathMatcher.match(toCompare);
 			boolean isMatch = pathMatching.isMatch();
 
 			if (isMatch) {

@@ -65,6 +65,19 @@ public class SortedCollection<E extends Comparable< ? super E>> extends Abstract
 		return moreThan;
 	}
 
+	public SortedCollection<E> copy(int startIndex) {
+		int length = size() - startIndex;
+		return copy(startIndex, length);
+	}
+
+	public SortedCollection<E> copy(int startIndex, int length) {
+		SortedCollection<E> copy = new SortedCollection<E>();
+		for (int k = startIndex;  k < startIndex + length; k++) {
+			copy.add(get(k));
+		}
+		return copy;
+	}
+
 	protected static <E extends Comparable< ? super E>> int insertionIndexSearch(SortedCollection<E> list, E e) {
 		int minIndex = 0,
 				maxIndex = list.size() - 1,
