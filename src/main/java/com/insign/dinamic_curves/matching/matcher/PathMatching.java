@@ -1,16 +1,20 @@
-package com.insign.dinamic_curves.matching;
+package com.insign.dinamic_curves.matching.matcher;
+
+import com.insign.dinamic_curves.matching.MetricsTable;
+import com.insign.dinamic_curves.matching.MetricsTableIndices;
+import com.insign.dinamic_curves.points.Extreme;
 
 import java.util.List;
+import java.util.SortedMap;
 
 /**
  * Created by ilion on 06.05.2015.
  */
 public class PathMatching implements Matching, Cloneable {
 
-	private MetricsTable metricsTable = null;
-	private List<MetricsTableIndices> tablePath = null;
 	private double optimalMetric = 0;
 	private boolean isMatch = false;
+	private SortedMap<Extreme, Extreme> extremesConformity = null;
 
 
 	private PathMatching() {}
@@ -20,8 +24,10 @@ public class PathMatching implements Matching, Cloneable {
 		return isMatch;
 	}
 
-	public MetricsTable getMetricsTable() {
-		return metricsTable;
+	public double getOptimalMetric() { return optimalMetric; }
+
+	public SortedMap<Extreme, Extreme> getExtremesConformity() {
+		return extremesConformity;
 	}
 
 	protected Object clone() {
@@ -42,18 +48,13 @@ public class PathMatching implements Matching, Cloneable {
 
 		private Builder() {}
 
-		public Builder setMetricsTable(MetricsTable metricsTable) {
-			PathMatching.this.metricsTable = metricsTable;
-			return this;
-		}
-
-		public Builder setTablePath(List<MetricsTableIndices> tablePath) {
-			PathMatching.this.tablePath = tablePath;
-			return this;
-		}
-
 		public Builder setOptimalMetric(double optimalMetric) {
 			PathMatching.this.optimalMetric = optimalMetric;
+			return this;
+		}
+
+		public Builder setExtremesConformity(SortedMap<Extreme, Extreme> extremesConformity) {
+			PathMatching.this.extremesConformity = extremesConformity;
 			return this;
 		}
 

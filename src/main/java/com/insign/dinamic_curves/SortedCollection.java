@@ -49,6 +49,14 @@ public class SortedCollection<E extends Comparable< ? super E>> extends Abstract
 		return get(size() - 1);
 	}
 
+	public E getIfContains(E e) {
+		int index = insertionIndexSearch(this, e);
+		if (index < size() && get(index).equals(e))
+			return get(index);
+		else
+			return null;
+	}
+
 	public SortedCollection<E> getLessThan(E e) {
 		int insertionIndex = SortedCollection.insertionIndexSearch(this, e);
 		SortedCollection<E> lessThan = new SortedCollection<E>();

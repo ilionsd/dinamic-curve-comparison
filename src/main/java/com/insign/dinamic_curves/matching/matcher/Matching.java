@@ -1,4 +1,4 @@
-package com.insign.dinamic_curves.matching;
+package com.insign.dinamic_curves.matching.matcher;
 
 /**
  * Created by ilion on 06.05.2015.

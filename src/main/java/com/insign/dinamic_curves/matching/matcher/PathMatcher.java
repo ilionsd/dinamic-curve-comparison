@@ -16,108 +16,117 @@ import java.util.*;
 /**
  * Created by ilion on 18.04.2015.
  */
-public class PathMatcher implements Matcher<Signature> {
-	public static final Metric<Chord> PLACE_METRIC = ChordPlaceMetric.getMeter();
-	public static final Metric<Chord> SIZE_METRIC = ChordSizeMetric.getMeter();
-	public static final Metric<Chord> JURAVLEV_METRIC = JuravlevMetric.getMeter();
-	public static final Metric<Point2D> EUCLIDEAN_METRIC = EuclideanMetric.getMeter();
-
-	protected static double PLACE_METRIC_WEIGHT = 1;
-	protected static double SIZE_METRIC_WEIGHT = 1;
-	protected static double JURAVLEV_METRIC_WEIGHT = 100;
-
-
-	public static final MetricEvaluator pathMetricEvaluator = new MetricEvaluator()
-			.setWeight(PLACE_METRIC.getName(), PLACE_METRIC_WEIGHT)
-			.setWeight(SIZE_METRIC.getName(), SIZE_METRIC_WEIGHT)
-			.setWeight(JURAVLEV_METRIC.getName(), JURAVLEV_METRIC_WEIGHT);
-
-
+public class PathMatcher extends AbstractMatcher<Signature> implements Matcher<Signature> {
 
 	protected static double METRIC_THRESHOLD = 100;
 
-	private static final Displacement2D[] DISPLACEMENTS = {
-			new Displacement2D(1, 1),
-			new Displacement2D(1, 3),
-			new Displacement2D(3, 1)
-	};
-
-	private Signature reference = null;
-
 	@Override
 	public PathMatching match(Signature signature) {
+		boolean isNullMatch = super.nullMatch(signature);
+		if (!isNullMatch)
+			return null;
+		else {
+			SortedCollection<Extreme> refVerticalExtremes = getReference().getVerticalExtremes();
+			SortedCollection<Extreme> sigVerticalExtremes = signature.getVerticalExtremes();
 
-		SortedCollection<Extreme> refVerticalExtremes = reference.getVerticalExtremes();
-		SortedCollection<Extreme> sigVerticalExtremes = signature.getVerticalExtremes();
+			List<Chord> refVerticalExtremesChords = getChordList(refVerticalExtremes);
+			List<Chord> sigVerticalExtremesChords = getChordList(sigVerticalExtremes);
 
-		MetricsTableBuilder<Chord> chordMetricsTableBuilder = new MetricsTableBuilder<Chord>()
-				.addMetric(PLACE_METRIC)
-				.addMetric(SIZE_METRIC)
-				.addMetric(JURAVLEV_METRIC)
-				.setMetricEvaluator(pathMetricEvaluator);
+			ChordConformityResolver ccr = new ChordConformityResolver().setReference(refVerticalExtremesChords);
+			ChordConformitySolution ccs = ccr.resolve(sigVerticalExtremesChords);
 
-		List<Chord> refVerticalExtremesChordList = getChordList(refVerticalExtremes);
-		List<Chord> sigVerticalExtremesChordList = getChordList(sigVerticalExtremes);
+			PathMatching.Builder builder = PathMatching.newBuilder()
+					.setOptimalMetric(ccs.getOptimalMetric());
 
-		MetricsTable metricsTable = chordMetricsTableBuilder.build(refVerticalExtremesChordList, sigVerticalExtremesChordList);
+			if (Double.compare(ccs.getOptimalMetric(), METRIC_THRESHOLD) > 0) {
+				//--  --
+				builder.setIsMatch(false);
+			}
+			else {
+				builder.setIsMatch(true);
+				SortedMap<Extreme, Extreme> extremesConformity = new TreeMap<Extreme, Extreme>(new Comparator<Extreme>() {
+					@Override
+					public int compare(Extreme o1, Extreme o2) {
+						return o1.compareTo(o2);
+					}
+				});
+				//-- Vertical extremes conformity --
+				extremesConformity.putAll(toExtremesConformity(ccs.getChordSolution(), refVerticalExtremes, sigVerticalExtremes));
+				//-- + horizontal extremes conformity --
+				extremesConformity.putAll(intermediateExtremesConformity(extremesConformity, getReference().getHorizontalExtremes(), signature.getHorizontalExtremes()));
+				//-- + curvature extremes conformity--
+				extremesConformity.putAll(intermediateExtremesConformity(extremesConformity, getReference().getCurvatureExtremes(), signature.getCurvatureExtremes()));
 
-		List<MetricsTableIndices> tablePath = metricsTable.optimize(DISPLACEMENTS);
+				builder.setExtremesConformity(extremesConformity);
+			}
 
-		double optimalMetric = 0;
-		for (MetricsTableIndices optimalIndices : tablePath) {
-			optimalMetric += metricsTable.get(optimalIndices);
+			return builder.build();
 		}
-
-		for (int k = 1; k < tablePath.size(); k++) {
-			int refLeftIndex = tablePath.get(k - 1).i();
-			int refRightIndex = tablePath.get(k).i();
-			int sigLeftIndex = tablePath.get(k - 1).j();
-			int sigRightIndex = tablePath.get(k).j();
-			SortedCollection<Extreme> refIntermediateHorizontalExtremes = reference.getHorizontalExtremes()
-					.getMoreThan(refVerticalExtremes.get(refLeftIndex))
-					.getLessThan(refVerticalExtremes.get(refRightIndex));
-			SortedCollection<Extreme> sigIntermediateHorizontalExtremes = signature.getHorizontalExtremes()
-					.getMoreThan(sigVerticalExtremes.get(sigLeftIndex))
-					.getLessThan(sigVerticalExtremes.get(sigRightIndex));
-
-		}
-
-
-		List<Integer> conformity = new ArrayList<Integer>(reference.getSkeleton().size());
-		ListUtils.setAll(conformity, -1);
-
-		for (MetricsTableIndices index : tablePath) {
-			int refIndex = getPointIndex(index.i(), reference.getSkeleton());
-			int sigIndex = getPointIndex(index.j(), signature.getSkeleton());
-			conformity.set(refIndex, sigIndex);
-		}
-
-		for (int k = 0; k < refVerticalExtremes.size(); k++) {
-
-		}
-
-
-
-
-		PathMatching.Builder builder = PathMatching.newBuilder()
-				.setMetricsTable(metricsTable)
-				.setTablePath(tablePath)
-				.setOptimalMetric(optimalMetric);
-
-		if (Double.compare(optimalMetric, METRIC_THRESHOLD) < 0)
-			return builder.setIsMatch(true).build();
-		return builder.setIsMatch(false).build();
-	}
-
-	@Override
-	public Signature getReference() {
-		return reference;
 	}
 
 	@Override
 	public PathMatcher setReference(Signature reference) {
-		this.reference = reference;
+		super.setReference(reference);
 		return this;
+	}
+
+	private Map<Extreme, Extreme> intermediateExtremesConformity(SortedMap<Extreme, Extreme> extremesConformity, SortedCollection<Extreme> refExtremes, SortedCollection<Extreme> sigExtremes) {
+		List<Map.Entry<Extreme, Extreme>> extremesConformityList = new ArrayList<Map.Entry<Extreme, Extreme>>(extremesConformity.entrySet());
+
+		Map<Extreme, Extreme> intermediateConformity = new HashMap<Extreme, Extreme>();
+
+		for (int k = 1; k < extremesConformityList.size(); k++) {
+			Extreme refLeftExtreme = extremesConformityList.get(k - 1).getKey();
+			Extreme refRightExtreme = extremesConformityList.get(k).getKey();
+			Extreme sigLeftExtreme= extremesConformityList.get(k - 1).getValue();
+			Extreme sigRightExtreme = extremesConformityList.get(k).getValue();
+			SortedCollection<Extreme> refIntermediateHorizontalExtremes = refExtremes
+					.getMoreThan(refLeftExtreme)
+					.getLessThan(refRightExtreme);
+			SortedCollection<Extreme> sigIntermediateHorizontalExtremes = sigExtremes
+					.getMoreThan(sigLeftExtreme)
+					.getLessThan(sigRightExtreme);
+
+			IntermediateExtremesConformityResolver iecr = new IntermediateExtremesConformityResolver().setReference(refIntermediateHorizontalExtremes);
+			IntermediateExtremesConformitySolution iecs = iecr.resolve(sigIntermediateHorizontalExtremes);
+
+			intermediateConformity.putAll(iecs.getExtremesConformity());
+		}
+		return intermediateConformity;
+	}
+
+	private SortedMap<Extreme, Extreme> toExtremesConformity(Map<Chord, Chord> chordConformity, SortedCollection<Extreme> refVerticalExtremes, SortedCollection<Extreme> sigVerticalExtremes) {
+		SortedMap<Extreme, Extreme> extremeConformity = new TreeMap<Extreme, Extreme>(new Comparator<Extreme>() {
+			@Override
+			public int compare(Extreme o1, Extreme o2) {
+				return o1.compareTo(o2);
+			}
+		});
+
+		for (Map.Entry<Chord, Chord> entry : chordConformity.entrySet()) {
+			Chord regChord = entry.getKey();
+			Chord sigChord = entry.getValue();
+
+			Extreme refChordStart = getIfContains(regChord.getStart(), refVerticalExtremes);
+			Extreme sigChordStart = getIfContains(sigChord.getStart(), sigVerticalExtremes);
+			if (refChordStart != null && sigChordStart != null && !extremeConformity.containsKey(refChordStart))
+				extremeConformity.put(refChordStart, sigChordStart);
+
+			Extreme refChordEnd = getIfContains(regChord.getEnd(), refVerticalExtremes);
+			Extreme sigChordEnd = getIfContains(sigChord.getEnd(), sigVerticalExtremes);
+			if (refChordEnd != null && sigChordEnd != null && !extremeConformity.containsKey(refChordEnd))
+				extremeConformity.put(refChordEnd, sigChordEnd);
+		}
+
+		return extremeConformity;
+	}
+
+	private Extreme getIfContains(Point2D item, SortedCollection<Extreme> collection) {
+		for (int k = 0; k < collection.size(); k++) {
+			if (collection.get(k).getValue().equals(item))
+				return collection.get(k);
+		}
+		return null;
 	}
 
 	private int getPointIndex(int verticalExtremeIndex, SortedCollection<? extends SignaturePoint> points) {
@@ -133,6 +142,7 @@ public class PathMatcher implements Matcher<Signature> {
 		}
 		return -1;
 	}
+
 
 	private static List<Chord> getChordList(SortedCollection<Extreme> extremes) {
 		List<Chord> chordList = new ArrayList<Chord>();

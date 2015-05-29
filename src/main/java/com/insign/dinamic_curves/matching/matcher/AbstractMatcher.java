@@ -1,11 +1,15 @@
 package com.insign.dinamic_curves.matching.matcher;
 
+import com.insign.dinamic_curves.matching.Referenceable;
+
 /**
  * Created by ilion on 10.05.2015.
  */
-public abstract class AbstractMatcher {
+public abstract class AbstractMatcher<T> implements Referenceable<T>{
 
-	protected boolean nullMatch(Object reference, Object toCompare) {
+	protected T reference = null;
+
+	protected boolean nullMatch(T toCompare) {
 
 		boolean isMatch = true;
 
@@ -16,4 +20,17 @@ public abstract class AbstractMatcher {
 
 		return isMatch;
 	}
+
+	@Override
+	public AbstractMatcher<T> setReference(T reference) {
+		this.reference = reference;
+		return this;
+	}
+
+	@Override
+	public T getReference() {
+		return reference;
+	}
+
+	public enum NullMatching {BOTH_NULL, ONE_OF_NULL, BOTH_NOT_NULL};
 }

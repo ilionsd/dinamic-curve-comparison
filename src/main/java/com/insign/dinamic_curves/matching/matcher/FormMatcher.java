@@ -1,33 +1,56 @@
 package com.insign.dinamic_curves.matching.matcher;
 
+import com.insign.common.function.Point2D;
 import com.insign.dinamic_curves.SortedCollection;
-import com.insign.dinamic_curves.matching.FormMatching;
+import com.insign.dinamic_curves.points.Extreme;
 import com.insign.dinamic_curves.points.SignaturePoint;
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * Created by ilion on 06.05.2015.
  */
-public class FormMatcher implements Matcher<SortedCollection<SignaturePoint>> {
-	protected static double ANGLE_DIFFERENCE_LIMIT = 1;
+public class FormMatcher implements Matcher<SortedMap<Extreme, Extreme>> {
+	public static final double ANGLE_AVERAGE_DIFFERENCE_LIMIT = 1;
+	public static final double ANGLE_MAX_DIFFERENCE_LIMIT = 1;
 
 	private SortedCollection<SignaturePoint> toCompare = null;
 
 	@Override
-	public FormMatching match(SortedCollection<SignaturePoint> signaturePoints) {
+	public FormMatching match(SortedMap<Extreme, Extreme> extremesConformity) {
+		List<Map.Entry<Extreme, Extreme>> extremesConformityList = new ArrayList<Map.Entry<Extreme, Extreme>>(extremesConformity.entrySet());
+
+		double maxDifference = 0;
+		double averageDifference = 0;
+		double sumDifference = 0;
+		int maxDifferenceIndex = -1;
+
+		for (int k = 1; k < extremesConformityList.size(); k++) {
+			Map.Entry<Extreme, Extreme> leftEntry = extremesConformityList.get(k - 1);
+			Map.Entry<Extreme, Extreme> rightEntry = extremesConformityList.get(k);
+			double refAngle = Point2D.asVector.angle(leftEntry.getKey().getTangent(), rightEntry.getKey().getTangent());
+			double sigAngle = Point2D.asVector.angle(leftEntry.getValue().getTangent(), rightEntry.getValue().getTangent());
+			double difference = Math.abs(refAngle - sigAngle);
+			sumDifference += difference;
+			if (Double.compare(maxDifference, difference) < 0) {
+				maxDifference = difference;
+				maxDifferenceIndex = k;
+			}
+		}
+
+		averageDifference = sumDifference / (extremesConformityList.size() - 1);
+		FormMatching.Builder builder = FormMatching.newBuilder()
+				.setMaxDifference(maxDifference)
+				.setMaxDifferenceIndex(maxDifferenceIndex)
+				.setAverageDifference(averageDifference);
 
 
 
-		return null;
-	}
 
-	@Override
-	public SortedCollection<SignaturePoint> getReference() {
-		return toCompare;
-	}
-
-	@Override
-	public FormMatcher setReference(SortedCollection<SignaturePoint> toCompare) {
-		this.toCompare = toCompare;
-		return this;
+		return builder.build();
 	}
 }

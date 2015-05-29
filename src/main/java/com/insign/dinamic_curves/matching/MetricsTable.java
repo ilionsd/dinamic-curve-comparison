@@ -43,19 +43,25 @@ public class MetricsTable{
 		return metricsTable[i][j];
 	}
 
+	private boolean isIn(MetricsTableIndices indices) {
+		return indices.i() < getRowsCount() && indices.j() < getColumnsCount();
+	}
+
 	public List<MetricsTableIndices> optimize(Displacement2D[] displacements) {
 		List<MetricsTableIndices> tablePath = new ArrayList<MetricsTableIndices>();
 
 		MetricsTableIndices indices = new MetricsTableIndices(-1, -1);
-		while (indices.i() < getRowsCount() && indices.j() < getColumnsCount()) {
+		while (indices.i() < getRowsCount() - 1 && indices.j() < getColumnsCount() - 1) {
 			double metric = Double.MAX_VALUE;
 			MetricsTableIndices metricIndices = null;
 			for (Displacement2D displacement : displacements) {
 				MetricsTableIndices nextIndices = indices.displace(displacement);
-				double nextMetric = get(nextIndices);
-				if (Double.compare(nextMetric, metric) < 0) {
-					metric = nextMetric;
-					metricIndices = nextIndices;
+				if (isIn(nextIndices)) {
+					double nextMetric = get(nextIndices);
+					if (Double.compare(nextMetric, metric) < 0) {
+						metric = nextMetric;
+						metricIndices = nextIndices;
+					}
 				}
 			}
 			indices = metricIndices;

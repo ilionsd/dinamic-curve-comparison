@@ -7,5 +7,5 @@ public interface Extreme extends SignaturePoint {
 
 	Extreme.Type getExtremumType();
 
-	enum Type { VERTICAL ,HORIZONTAL,CURVATURE }
+	enum Type { VERTICAL, HORIZONTAL, CURVATURE }
 }
