@@ -10,20 +10,27 @@ public class SignatureMatcher extends AbstractMatcher<Signature> implements Matc
 	private Signature reference = null;
 
 	@Override
-	public Matching match(Signature signature) {
+	public SignatureMatching match(Signature signature) {
 		boolean nullMatch = super.nullMatch(signature);
 
 		if (nullMatch) {
-
+			SignatureMatching.Builder builder = SignatureMatching.newBuilder();
 			PathMatcher pathMatcher = new PathMatcher().setReference(reference);
 			PathMatching pathMatching = pathMatcher.match(signature);
-			boolean isMatch = pathMatching.isMatch();
-
-			if (isMatch) {
-
+			boolean isPathMatch = pathMatching.isMatch();
+			builder.setIsPathMatch(isPathMatch)
+					.setPathMatchingOptimalMetric(pathMatching.getOptimalMetric());
+			if (isPathMatch) {
 				FormMatcher formMatcher = new FormMatcher();
 				FormMatching formMatching = formMatcher.match(pathMatching.getExtremesConformity());
+
+				builder.setIsFormAverageDifferenceMatch(formMatching.isAverageMatch())
+						.setIsFormMaxDifferenceMatch(formMatching.isMaxMatch())
+						.setFormMatchingAverageDifference(formMatching.getAverageDifference())
+						.setFormMatchingMaxDifference(formMatching.getMaxDifference());
 			}
+
+			return builder.build();
 		}
 		return null;
 	}

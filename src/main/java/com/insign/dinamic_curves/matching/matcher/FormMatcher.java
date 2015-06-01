@@ -15,10 +15,12 @@ import java.util.SortedMap;
  * Created by ilion on 06.05.2015.
  */
 public class FormMatcher implements Matcher<SortedMap<Extreme, Extreme>> {
-	public static final double ANGLE_AVERAGE_DIFFERENCE_LIMIT = 1;
-	public static final double ANGLE_MAX_DIFFERENCE_LIMIT = 1;
+	public static final double DEFAULT_ANGLE_AVERAGE_DIFFERENCE_LIMIT = 1;
+	public static final double DEFAULT_ANGLE_MAX_DIFFERENCE_LIMIT = 1;
 
 	private SortedCollection<SignaturePoint> toCompare = null;
+	protected double angleAverageDifferenceLimit = DEFAULT_ANGLE_AVERAGE_DIFFERENCE_LIMIT;
+	protected double angleMaxDifferenceLimit = DEFAULT_ANGLE_MAX_DIFFERENCE_LIMIT;
 
 	@Override
 	public FormMatching match(SortedMap<Extreme, Extreme> extremesConformity) {
@@ -46,11 +48,25 @@ public class FormMatcher implements Matcher<SortedMap<Extreme, Extreme>> {
 		FormMatching.Builder builder = FormMatching.newBuilder()
 				.setMaxDifference(maxDifference)
 				.setMaxDifferenceIndex(maxDifferenceIndex)
-				.setAverageDifference(averageDifference);
+				.setAverageDifference(averageDifference)
+				.setMaxDifference(maxDifference);
 
+		boolean isAverageMatch = Double.compare(averageDifference, angleAverageDifferenceLimit) < 0;
+		boolean isMaxMatch = Double.compare(maxDifference, angleMaxDifferenceLimit) < 0;
 
-
+		builder.setIsAverageMatch(isAverageMatch)
+				.setIsMaxMatch(isMaxMatch);
 
 		return builder.build();
+	}
+
+	public FormMatcher setAngleAverageDifferenceLimit(double angleAverageDifferenceLimit) {
+		this.angleAverageDifferenceLimit = angleAverageDifferenceLimit;
+		return this;
+	}
+
+	public FormMatcher setAngleMaxDifferenceLimit(double angleMaxDifferenceLimit) {
+		this.angleMaxDifferenceLimit = angleMaxDifferenceLimit;
+		return this;
 	}
 }
