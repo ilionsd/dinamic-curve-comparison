@@ -34,7 +34,7 @@ public class IntermediateExtremesConformitySolution implements Solution, Cloneab
 			clone = (IntermediateExtremesConformitySolution)super.clone();
 		}
 		catch (CloneNotSupportedException e) {
-			throw new InternalError(e);
+			throw new InternalError(e.getMessage());
 		}
 		return clone;
 	}

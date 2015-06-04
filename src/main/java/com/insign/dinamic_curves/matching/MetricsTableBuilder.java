@@ -1,11 +1,7 @@
 package com.insign.dinamic_curves.matching;
 
-import com.insign.dinamic_curves.Chord;
-import com.insign.dinamic_curves.SortedCollection;
-import com.insign.dinamic_curves.matching.matcher.PathMatcher;
 import com.insign.dinamic_curves.matching.metric.Metric;
 import com.insign.dinamic_curves.matching.metric.MetricEvaluator;
-import com.insign.dinamic_curves.points.Extreme;
 
 import java.lang.reflect.Array;
 import java.util.*;

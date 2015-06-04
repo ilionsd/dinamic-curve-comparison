@@ -1,10 +1,9 @@
 package com.insign.dinamic_curves.matching.matcher;
 
 import com.insign.common.function.Point2D;
-import com.insign.dinamic_curves.SortedCollection;
+import com.insign.common.collection.SortedCollection;
 import com.insign.dinamic_curves.points.Extreme;
 import com.insign.dinamic_curves.points.SignaturePoint;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 
 import java.util.ArrayList;
 import java.util.List;

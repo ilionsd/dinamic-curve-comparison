@@ -1,5 +1,6 @@
 package com.insign.dinamic_curves;
 
+import com.insign.common.collection.SortedCollection;
 import com.insign.dinamic_curves.points.BoundaryPoint;
 import com.insign.dinamic_curves.points.BoundaryPointImpl;
 import com.insign.dinamic_curves.points.Extreme;

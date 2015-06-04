@@ -1,16 +1,7 @@
 package com.insign.dinamic_curves.matching;
 
-import com.insign.common.function.Point2D;
-import com.insign.dinamic_curves.Chord;
-import com.insign.dinamic_curves.SortedCollection;
-import com.insign.dinamic_curves.matching.matcher.PathMatcher;
-import com.insign.dinamic_curves.points.Extreme;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ilion on 06.05.2015.

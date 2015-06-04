@@ -1,7 +1,7 @@
 package com.insign.dinamic_curves.matching.matcher;
 
 import com.insign.dinamic_curves.Chord;
-import com.insign.dinamic_curves.SortedCollection;
+import com.insign.common.collection.SortedCollection;
 import com.insign.dinamic_curves.matching.Displacement2D;
 import com.insign.dinamic_curves.matching.MetricsTable;
 import com.insign.dinamic_curves.matching.MetricsTableBuilder;
@@ -55,7 +55,7 @@ public class ChordConformityResolver extends AbstractMatcher<List<? extends Chor
 		}
 
 		Integer[] indexSolution = new Integer[getReference().size()];
-		com.insign.common.ArrayUtils.setAll(indexSolution, null);
+		com.insign.utils.ArrayUtils.setAll(indexSolution, null);
 
 		LinkedHashMap<Chord, Chord> chordSolution = new LinkedHashMap<Chord, Chord>();
 

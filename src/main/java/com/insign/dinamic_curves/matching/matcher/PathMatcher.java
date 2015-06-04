@@ -2,11 +2,8 @@ package com.insign.dinamic_curves.matching.matcher;
 
 import com.insign.common.function.Point2D;
 import com.insign.dinamic_curves.Chord;
-import com.insign.dinamic_curves.ListUtils;
 import com.insign.dinamic_curves.Signature;
-import com.insign.dinamic_curves.SortedCollection;
-import com.insign.dinamic_curves.matching.*;
-import com.insign.dinamic_curves.matching.metric.*;
+import com.insign.common.collection.SortedCollection;
 import com.insign.dinamic_curves.points.BoundaryPoint;
 import com.insign.dinamic_curves.points.Extreme;
 import com.insign.dinamic_curves.points.SignaturePoint;

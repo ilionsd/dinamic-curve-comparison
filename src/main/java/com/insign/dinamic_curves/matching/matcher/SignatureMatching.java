@@ -27,7 +27,7 @@ public class SignatureMatching implements Matching, Cloneable {
 		try {
 			clone = (SignatureMatching)super.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new InternalError(e);
+			throw new InternalError(e.getMessage());
 		}
 		return clone;
 	}

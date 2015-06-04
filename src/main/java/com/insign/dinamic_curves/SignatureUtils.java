@@ -1,5 +1,6 @@
 package com.insign.dinamic_curves;
 
+import com.insign.common.collection.SortedCollection;
 import com.insign.common.function.*;
 import com.insign.common.function.differentialgeometry.NaturalParametricCurve;
 import com.insign.common.function.differentialgeometry.NaturalCubicSplineParametricCurve;
@@ -12,6 +13,7 @@ import com.insign.dinamic_curves.points.BoundaryPointImpl;
 import com.insign.dinamic_curves.points.Extreme;
 import com.insign.dinamic_curves.points.ExtremeImpl;
 import com.insign.dinamic_curves.points.SignaturePoint;
+import com.insign.utils.DoubleUtils;
 
 import java.util.*;
 
@@ -155,7 +157,7 @@ public class SignatureUtils {
 		List<Point2D> extremumPoints = new ArrayList<Point2D>();
 		double[] xKnots = xs.getKnots();
 		double[] yKnots = ys.getKnots();
-		double[] overallKnots = com.insign.common.ArrayUtils.union(xKnots, yKnots);
+		double[] overallKnots = com.insign.utils.ArrayUtils.union(xKnots, yKnots);
 		for (int k = 1; k < overallKnots.length; k++) {
 			double middle = (overallKnots[k - 1] + overallKnots[k]) / 2.0;
 			int xsIndex = xs.getSegment(middle),

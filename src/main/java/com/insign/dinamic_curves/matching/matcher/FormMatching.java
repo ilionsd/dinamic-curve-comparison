@@ -51,7 +51,7 @@ public class FormMatching implements Matching, Cloneable {
 		try {
 			clone = (FormMatching)super.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new InternalError(e);
+			throw new InternalError(e.getMessage());
 		}
 		return clone;
 	}

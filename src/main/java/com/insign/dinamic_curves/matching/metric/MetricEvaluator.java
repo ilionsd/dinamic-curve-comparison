@@ -26,7 +26,7 @@ public class MetricEvaluator {
 		Set<String> metricsKeySet = metrics.keySet();
 		double result = 0;
 		for (String metricName : metricsKeySet) {
-			Double weight = weights.getOrDefault(metricName, DEFAULT_WEIGHT);
+			Double weight = (weights.containsKey(metricName))?weights.get(metricName) : DEFAULT_WEIGHT;
 			result += weight * metrics.get(metricName);
 		}
 		return result;

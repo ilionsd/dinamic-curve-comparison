@@ -23,6 +23,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
+        <module name="common.linearalgebra" />
+        <module name="dinamic-curve-comparison" />
         <module name="dinamic-curve-matching" />
       </profile>
     </annotationProcessing>
