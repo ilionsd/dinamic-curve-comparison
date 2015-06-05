@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class PathMatcher extends AbstractMatcher<Signature> implements Matcher<Signature> {
 
-	protected static double METRIC_THRESHOLD = 100;
+	protected static double METRIC_THRESHOLD = 4000;
 
 	@Override
 	public PathMatching match(Signature signature) {
@@ -56,8 +56,8 @@ public class PathMatcher extends AbstractMatcher<Signature> implements Matcher<S
 
 				builder.setExtremesConformity(extremesConformity);
 			}
-
-			return builder.build();
+			PathMatching matching = builder.build();
+			return matching;
 		}
 	}
 

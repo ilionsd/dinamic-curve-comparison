@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by ilion on 22.05.2015.
  */
-public class ChordConformitySolution implements Solution {
+public class ChordConformitySolution implements Solution, Cloneable {
 	Integer[] indexSolution = null;
 	LinkedHashMap<Chord, Chord> chordSolution = null;
 	private MetricsTable metricsTable = null;

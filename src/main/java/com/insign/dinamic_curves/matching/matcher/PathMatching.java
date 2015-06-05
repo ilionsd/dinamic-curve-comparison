@@ -30,12 +30,13 @@ public class PathMatching implements Matching, Cloneable {
 		return extremesConformity;
 	}
 
-	protected Object clone() {
+	@Override
+	public Object clone() {
 		Object clone = null;
 		try {
 			clone = super.clone();
 		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
+			throw new InternalError(e.getMessage());
 		}
 		return clone;
 	}

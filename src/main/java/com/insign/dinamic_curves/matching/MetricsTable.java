@@ -35,7 +35,10 @@ public class MetricsTable{
 	}
 
 	private boolean isIn(MetricsTableIndices indices) {
-		return indices.i() < getRowsCount() && indices.j() < getColumnsCount();
+		return indices.i() >= 0
+				&& indices.i() < getRowsCount()
+				&& indices.j() >= 0
+				&& indices.j() < getColumnsCount();
 	}
 
 	public List<MetricsTableIndices> optimize(Displacement2D[] displacements) {

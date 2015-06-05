@@ -7,8 +7,6 @@ import com.insign.dinamic_curves.Signature;
  */
 public class SignatureMatcher extends AbstractMatcher<Signature> implements Matcher<Signature> {
 
-	private Signature reference = null;
-
 	@Override
 	public SignatureMatching match(Signature signature) {
 		boolean nullMatch = super.nullMatch(signature);
