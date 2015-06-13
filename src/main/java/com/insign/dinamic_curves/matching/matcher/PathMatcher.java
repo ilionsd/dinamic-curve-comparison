@@ -15,7 +15,9 @@ import java.util.*;
  */
 public class PathMatcher extends AbstractMatcher<Signature> implements Matcher<Signature> {
 
-	protected static double METRIC_THRESHOLD = 4000;
+	public static final double DEFAULT_METRIC_THRESHOLD = 120;
+
+	private double metricThreshold = DEFAULT_METRIC_THRESHOLD;
 
 	@Override
 	public PathMatching match(Signature signature) {
@@ -35,7 +37,7 @@ public class PathMatcher extends AbstractMatcher<Signature> implements Matcher<S
 			PathMatching.Builder builder = PathMatching.newBuilder()
 					.setOptimalMetric(ccs.getOptimalMetric());
 
-			if (Double.compare(ccs.getOptimalMetric(), METRIC_THRESHOLD) > 0) {
+			if (Double.compare(ccs.getOptimalMetric(), metricThreshold) > 0) {
 				//--  --
 				builder.setIsMatch(false);
 			}
@@ -139,7 +141,6 @@ public class PathMatcher extends AbstractMatcher<Signature> implements Matcher<S
 		}
 		return -1;
 	}
-
 
 	private static List<Chord> getChordList(SortedCollection<Extreme> extremes) {
 		List<Chord> chordList = new ArrayList<Chord>();

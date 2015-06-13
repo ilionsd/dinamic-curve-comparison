@@ -25,7 +25,7 @@ public class JuravlevMetric implements Metric<Chord> {
 		Point2D aVector = new Point2D(a.getEnd().getX() - a.getStart().getX(), a.getEnd().getY() - a.getStart().getY());
 		Point2D bVector = new Point2D(b.getEnd().getX() - b.getStart().getX(), b.getEnd().getY() - b.getStart().getY());
 
-		double cosAlpha = Point2D.asVector.angle(aVector, bVector);
+		double cosAlpha = Point2D.asVector.angleCos(aVector, bVector);
 
 		double metric;
 		if (Double.compare(THRESHOLD, Math.abs(cosAlpha)) >= 0)

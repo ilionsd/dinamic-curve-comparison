@@ -14,8 +14,8 @@ import java.util.SortedMap;
  * Created by ilion on 06.05.2015.
  */
 public class FormMatcher implements Matcher<SortedMap<Extreme, Extreme>> {
-	public static final double DEFAULT_ANGLE_AVERAGE_DIFFERENCE_LIMIT = 1;
-	public static final double DEFAULT_ANGLE_MAX_DIFFERENCE_LIMIT = 1;
+	public static final double DEFAULT_ANGLE_AVERAGE_DIFFERENCE_LIMIT = Math.PI / 9.0;
+	public static final double DEFAULT_ANGLE_MAX_DIFFERENCE_LIMIT = Math.PI / 6.0;
 
 	private SortedCollection<SignaturePoint> toCompare = null;
 	protected double angleAverageDifferenceLimit = DEFAULT_ANGLE_AVERAGE_DIFFERENCE_LIMIT;
@@ -33,8 +33,10 @@ public class FormMatcher implements Matcher<SortedMap<Extreme, Extreme>> {
 		for (int k = 1; k < extremesConformityList.size(); k++) {
 			Map.Entry<Extreme, Extreme> leftEntry = extremesConformityList.get(k - 1);
 			Map.Entry<Extreme, Extreme> rightEntry = extremesConformityList.get(k);
-			double refAngle = Point2D.asVector.angle(leftEntry.getKey().getTangent(), rightEntry.getKey().getTangent());
-			double sigAngle = Point2D.asVector.angle(leftEntry.getValue().getTangent(), rightEntry.getValue().getTangent());
+			double refAngle = Math.acos(
+					Point2D.asVector.angleCos(leftEntry.getKey().getTangent(), rightEntry.getKey().getTangent()));
+			double sigAngle = Math.acos(
+					Point2D.asVector.angleCos(leftEntry.getValue().getTangent(), rightEntry.getValue().getTangent()));
 			double difference = Math.abs(refAngle - sigAngle);
 			sumDifference += difference;
 			if (Double.compare(maxDifference, difference) < 0) {
